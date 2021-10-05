@@ -53,10 +53,12 @@ class AlienInvasion:
         if self.play_button.rect.collidepoint(mouse_pos):
             # Reset the game settings.
             self.settings.initialize_dynamic_settings()
-            # Reset the game statistics.
+            # Reset the game statistics. 
             self.stats.reset_stats()
             self.stats.game_active = True
             self.sb.prep_score()
+            self.sb.prep_level()
+            self.sb.prep_ships()
             pygame.mouse.set_visible(False)
             # Get rid of any remaining aliens and bullets.
             self.aliens.empty()
@@ -162,7 +164,12 @@ class AlienInvasion:
             # Destroy existing bullets and create new fleet.
             self.bullets.empty()
             self._create_fleet()
-
+            self.settings.increase_speed()
+            
+            # Increase Level    
+            self.stats.level += 1
+            self.sb.prep_level()
+ 
         self._check_bullet_alien_collisions()
        
     def _check_bullet_alien_collisions(self):
@@ -176,12 +183,14 @@ class AlienInvasion:
                 self.stats.score += self.settings.alien_points * len(aliens)
             self.stats.score += self.settings.alien_points
             self.sb.prep_score()
+            self.sb.check_high_score()
 
     def _ship_hit(self):
         """ Respond to the ship being hit. """
         if self.stats.ships_left > 0:
             # Decrement ships_left
             self.stats.ships_left -= 1
+            self.sb.prep_ships()
 
             # Get rid of any remaining aliens and bullets.
             self.aliens.empty()
